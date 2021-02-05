@@ -7,6 +7,10 @@
 #include<climits>           //for UNIT_MAX
 #include<iostream>          //for cerr
 
+/*
+    这里写的alloc只是一个toy,不具有参考意义
+*/
+
 namespace wj{
     //声明new handler函数
     void (* __malloc_alloc_oom_handler)()=0;
@@ -21,20 +25,21 @@ namespace wj{
     void* oom_alloc(size_t n){
         void (*my_alloc_oom_handler)();
         void *result;
-        for(;;){
+        for(;;){            //不断尝试释放，配置，再释放，再配置...
             my_alloc_oom_handler=__malloc_alloc_oom_handler;
             if(my_alloc_oom_handler==0){
+                //未配置new handler函数，直接抛出异常
                 throw std::bad_alloc();
             }
-            (*my_alloc_oom_handler)();
-            result=malloc(n);
+            (*my_alloc_oom_handler)();          //调用new handler尝试获得更多内存
+            result=malloc(n);                   //再次尝试配置内存
             if(result) return result;
         }
     }
 
 
     template<typename T>
-    class allocator{
+    class alloc{
         public:
             //一组typedef
             typedef T               value_type;
@@ -48,32 +53,32 @@ namespace wj{
             //定义内置的模板版本
             template<typename U>
             struct rebind {
-                typedef allocator<U> other;
+                typedef alloc<U> other;
             };
 
             //allocate和deallocate
-            pointer allocate(size_type n,const void* p=0){
-                pointer buffer=(T*) malloc(n*sizeof(T));
+            static pointer allocate(size_type n,const void* p=0){
+                pointer buffer=(T*) malloc(n);
                 //内存不足这里不进行处理
                 if(buffer==0){
                     /*
                     std::cerr<<"out of memory"<<std::endl;
                     exit(1);
                     */
-                    buffer=(T*)oom_alloc(n*sizeof(T));
+                    buffer=(T*)oom_alloc(n);
                 }
                 return buffer;
             }
-            void deallocate(pointer p,size_type n){
+            static void deallocate(pointer p,size_type n){
                 if(p!=nullptr){
                     free(p);
                 }
             }
             //construct和destory
-            void construct(pointer p,const T& value){
+            static void construct(pointer p,const T& value){
                 new(p) T(value);            //使用placement new,在地址p出构造T,并将value值传给T
             }
-            void destory(pointer p,size_type n){
+            static void destory(pointer p,size_type n){
                 p->~T();                    //调用T的析构函数销毁之
             }
             //mas_size
@@ -87,6 +92,23 @@ namespace wj{
             const_pointer const_address(const_reference x){
                 return (const_address)(&x);
             }
+    };
+
+    //对alloc进行一个简单的封装
+    template<class T,class Alloc>
+    struct simple_alloc{
+        static T* allocate(size_t n){
+            return (n==0)?nullptr:Alloc::allocate(n*sizeof(T));
+        };
+        static T* allocate(void){
+            return Alloc::allocate(sizeof(T));
+        }
+        static void deallocate(T* p,size_t n){
+            if(n!=0) Alloc::deallocate(p,n*sizeof(T));
+        }
+        static void deallocate(T* p){
+            Alloc::deallocate(p,sizeof(T));
+        }
     };
 }
 

@@ -32,7 +32,7 @@ namespace wj{
     template<class Iterator>
     struct iterator_traits{
         typedef typename Iterator::iterator_category iterator_category;
-        typedef typename Iterator::value             value_type;
+        typedef typename Iterator::value_type        value_type;
         typedef typename Iterator::difference_type   difference_type;
         typedef typename Iterator::pointer           pointer;
         typedef typename Iterator::reference         reference;
@@ -77,6 +77,55 @@ namespace wj{
     value_type(const Iterator&){
         return static_cast<typename iterator_traits<Iterator>::value_type*>(0);
     }
+
+    //以下是整组的distance函数
+    template<class InputIterator,class Distance>
+    inline void
+    __distance(InputIterator first,InputIterator last,Distance &n,input_iterator_tag){
+        while(first!=last){
+            ++first;
+            ++n;
+        }
+    }
+
+    template<class RandomAccessIterator,class Distance>
+    inline void
+    __distance(RandomAccessIterator first,RandomAccessIterator last,Distance &n,random_access_iterator_tag){
+        n+=last-first;
+    }
+
+    template<class InputIterator,class Distance>
+    inline void
+    distance(InputIterator first,InputIterator last,Distance &n){
+        typedef typename iterator_traits<InputIterator>::iterator_category iterator_category;
+        __distance(first,last,n,iterator_category());
+    }
+
+    //以下是整组advance函数
+    template<class InputIterator, class Distance>
+    inline void
+    __advance(InputIterator& i, Distance n,input_iterator_tag){
+        while(n--) ++i;
+    }
+
+    template<class BidirectionalIterator,class Distance>
+    inline void
+    __advance(BidirectionalIterator& i,Distance n,bidirectional_iterator_tag){
+        if(n>=0){
+            while(n--) ++i;
+        }
+        else{
+            while(n++) --i;
+        }
+    }
+
+    template<class InputIterator,class Distance>
+    inline void
+    advance(InputIterator& i,Distance n){
+        typedef typename iterator_traits<InputIterator>::iterator_category iterator_category;
+        __advance(i,n,iterator_category());
+    }
+
 }
 
 #endif
