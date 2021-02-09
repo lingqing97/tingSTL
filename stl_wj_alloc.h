@@ -95,7 +95,7 @@ namespace wj{
     };
 
     //对alloc进行一个简单的封装
-    template<class T,class Alloc>
+    template<class T,class Alloc=alloc<T>>
     struct simple_alloc{
         static T* allocate(size_t n){
             return (n==0)?nullptr:Alloc::allocate(n*sizeof(T));
