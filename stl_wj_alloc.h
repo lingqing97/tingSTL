@@ -57,15 +57,15 @@ namespace wj{
             };
 
             //allocate和deallocate
-            static pointer allocate(size_type n,const void* p=0){
-                pointer buffer=(T*) malloc(n);
+            static void* allocate(size_type n,const void* p=0){
+                void* buffer= malloc(n);
                 //内存不足这里不进行处理
                 if(buffer==0){
                     /*
                     std::cerr<<"out of memory"<<std::endl;
                     exit(1);
                     */
-                    buffer=(T*)oom_alloc(n);
+                    buffer=oom_alloc(n);
                 }
                 return buffer;
             }
@@ -98,10 +98,10 @@ namespace wj{
     template<class T,class Alloc=alloc<T>>
     struct simple_alloc{
         static T* allocate(size_t n){
-            return (n==0)?nullptr:Alloc::allocate(n*sizeof(T));
+            return (n==0)?nullptr:(T*)Alloc::allocate(n*sizeof(T));
         };
         static T* allocate(void){
-            return Alloc::allocate(sizeof(T));
+            return (T*)Alloc::allocate(sizeof(T));
         }
         static void deallocate(T* p,size_t n){
             if(n!=0) Alloc::deallocate(p,n*sizeof(T));
