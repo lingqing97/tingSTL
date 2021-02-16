@@ -44,6 +44,7 @@ namespace wj{
             void push(const value_type& x) { c.push_back(x); }
             void pop() { c.pop_front(); }
     };
+
 }
 
 #endif /* __WJDEQUE__ */

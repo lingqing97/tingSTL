@@ -1,6 +1,7 @@
 #include"stl_wj_tree.h"
 #include<iostream>
 #include"stl_wj_algorithm.h"
+#include"stl_wj_function.h"
 
 
 int main(){

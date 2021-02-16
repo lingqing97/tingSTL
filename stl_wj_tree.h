@@ -170,6 +170,7 @@ namespace wj{
             typedef ptrdiff_t           difference_type;
         public:
             typedef __rb_tree_iterator<value_type,reference,pointer> iterator;
+            typedef __rb_tree_iterator<value_type,const value_type&,const value_type*> const_iterator;
         protected:
             link_type get_node() { return rb_tree_node_allocator::allocate(); }
             void put_node(link_type p)  { rb_tree_node_allocator::deallocate(p); }
@@ -280,8 +281,8 @@ namespace wj{
                 }
             }
             Compare key_comp() const { return key_compare; }
-            iterator begin() { return leftmost(); }     //RB述的起头为最左节点
-            iterator end() { return header; }      //RB树的终点为header所指处
+            iterator begin() const { return leftmost(); }     //RB述的起头为最左节点
+            iterator end() const { return header; }      //RB树的终点为header所指处
             bool empty() const { return node_count == 0; }
             size_type size() const { return node_count; }
             size_type max_size() const { return size_type(-1); }
@@ -292,7 +293,7 @@ namespace wj{
             //将x插入到RB-turee中（允许节点值重复）
             iterator insert_equal(const value_type& x);
         public:
-            iterator find(const Key& k);
+            iterator find(const Key& k) const;
     };
     //插入新值；节点键值允许重复
     //注意，返回值是一个RB-tree迭代器，指向新增节点
@@ -470,7 +471,7 @@ namespace wj{
     //寻找RB树中是否有键值为k的节点
     template<class Key,class Value,class KeyOfValue,class Compare,class Alloc>
     typename rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::iterator
-    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const Key& k){
+    rb_tree<Key, Value, KeyOfValue, Compare, Alloc>::find(const Key& k) const{
         link_type y=header;
         link_type x=root();
 

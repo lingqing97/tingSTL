@@ -8,19 +8,6 @@
 #include"stl_wj_vector.h"   //for class vector
 
 namespace wj{
-    //identity
-
-    template<class Arg,class Result>
-    struct unary_function{
-        typedef Arg argument_type;
-        typedef Result result_type;
-    };
-
-    template<class T>
-    struct identity:public unary_function<T,T>
-    {
-        const T& operator()(const T& x) const { return x;}
-    };
 
     //less
     template<class Arg1,class Arg2,class Result>
