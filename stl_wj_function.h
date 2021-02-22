@@ -35,6 +35,24 @@ namespace wj{
             return _x==_y;
         }
     };
+
+    //plus
+    template<class T>
+    struct plus:public wj::binary_function<T,T,T>{
+        T operator()(const T& x,const T& y) const { return x+y; }
+    };
+
+    //minus
+    template<class T>
+    struct minus:public wj::binary_function<T,T,T>{
+        T operator()(const T& x,const T& y) const { return x-y; }
+    };
+
+    //multiplies
+    template<class T>
+    struct multiplies:public wj::binary_function<T,T,T>{
+        T operator()(const T& x, const T& y) const { return x* y; }
+    };
 }
 
 #endif /*__WJFUNCTION__ */
